@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Слово · викторина по «Словарю языка Пушкина»</title>
+<meta name="description" content="Четыре отрывка из Пушкина печатаются на четырёх частях экрана. Непонятное слово выделено. Задача — найти его в «Словаре языка Пушкина».">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d1319'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' fill='%23f0c14e' text-anchor='middle'%3E%D0%A1%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="brand" id="brand">
+  <span class="brand__title">СЛОВО</span>
+  <span class="brand__sep">·</span>
+  <span class="brand__sub">«Словарь языка Пушкина» — кто быстрее найдёт непонятное слово</span>
+</header>
+
+<div class="clock" id="clock" hidden>00:00</div>
+
+<main class="stage" id="stage" aria-label="Четыре отрывка">
+  <section class="panel" data-index="0"><div class="panel__num">I</div></section>
+  <section class="panel" data-index="1"><div class="panel__num">II</div></section>
+  <section class="panel" data-index="2"><div class="panel__num">III</div></section>
+  <section class="panel" data-index="3"><div class="panel__num">IV</div></section>
+</main>
+
+<div class="countdown" id="countdown" hidden>
+  <div class="countdown__num" id="countdownNum">3</div>
+  <div class="countdown__tip">Сейчас начнём. Читайте текст вслух вместе с экраном.</div>
+</div>
+
+<footer class="bar" id="bar">
+  <button class="bar__btn" id="btnPlay" title="Пауза / продолжить (пробел)">Пауза</button>
+  <button class="bar__btn" id="btnRestart" title="Заново (R)">Заново</button>
+  <button class="bar__btn" id="btnSpeed" title="Скорость печати (V)">Скорость: средняя</button>
+  <button class="bar__btn" id="btnSrc" title="Показывать название произведения">Произведения: да</button>
+  <button class="bar__btn" id="btnClock" title="Хронометраж соревнования (C)">Хронометр: выкл</button>
+  <button class="bar__btn" id="btnFull" title="На весь экран (F)">На весь экран</button>
+  <button class="bar__btn bar__btn--main" id="btnReveal" title="Пояснения слов (E)" disabled>Пояснения</button>
+  <span class="keys" id="keys">
+    <b>пробел</b> пауза · <b>R</b> заново · <b>V</b> скорость · <b>E</b> пояснения · <b>C</b> хронометр · <b>F</b> весь экран · <b>PageDown</b> доскорить отрывок
+  </span>
+</footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
