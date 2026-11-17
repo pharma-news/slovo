@@ -2,7 +2,8 @@
 <html lang="ru" data-theme="dark">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1319">
 <title>Слово · викторина по «Словарю языка Пушкина»</title>
 <meta name="description" content="Четыре отрывка из Пушкина печатаются на четырёх частях экрана. Непонятное слово выделено. Задача — найти его в «Словаре языка Пушкина».">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d1319'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' fill='%23f0c14e' text-anchor='middle'%3E%D0%A1%3C/text%3E%3C/svg%3E">
@@ -10,18 +11,33 @@
 </head>
 <body>
 
-<div class="clock" id="clock" hidden>00:00</div>
+<!-- тихий мир на заднем плане: светило, облака, птицы, дали, лес, поле -->
+<div class="scene" aria-hidden="true">
+  <div class="scene__glow"></div>
+  <div class="scene__sun"></div>
+  <div class="scene__clouds">
+    <i style="top:5%;  left:-24%; width:44vw; height:9vh;  --c-dur:210s"></i>
+    <i style="top:13%; left:-38%; width:30vw; height:6vh;  --c-dur:300s; animation-delay:-110s"></i>
+    <i style="top:22%; left:-30%; width:50vw; height:8vh;  --c-dur:400s; animation-delay:-240s"></i>
+    <i style="top:8%;  left:-18%; width:20vw; height:4vh;  --c-dur:250s; animation-delay:-160s"></i>
+    <i style="top:30%; left:-45%; width:38vw; height:6vh;  --c-dur:350s; animation-delay:-70s"></i>
+    <i style="top:17%; left:-55%; width:26vw; height:5vh;  --c-dur:440s; animation-delay:-300s"></i>
+  </div>
+  <svg class="scene__art" id="sceneArt" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"></svg>
+  <div class="scene__motes" id="sceneMotes"></div>
+</div>
 
 <main class="stage" id="stage" aria-label="Четыре отрывка">
-  <section class="panel" data-index="0"><div class="panel__num">I</div></section>
-  <section class="panel" data-index="1"><div class="panel__num">II</div></section>
-  <section class="panel" data-index="2"><div class="panel__num">III</div></section>
-  <section class="panel" data-index="3"><div class="panel__num">IV</div></section>
+  <section class="panel" data-index="0"><span class="flash"></span><div class="panel__num">I</div></section>
+  <section class="panel" data-index="1"><span class="flash"></span><div class="panel__num">II</div></section>
+  <section class="panel" data-index="2"><span class="flash"></span><div class="panel__num">III</div></section>
+  <section class="panel" data-index="3"><span class="flash"></span><div class="panel__num">IV</div></section>
 </main>
 
 <button class="theme-fab" id="btnTheme" title="Тема">🌙</button>
 
 <script src="data.js"></script>
+<script src="scene.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

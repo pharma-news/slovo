@@ -13,7 +13,6 @@
   var root = document.documentElement;
   var stage = document.getElementById('stage');
   var panels = Array.prototype.slice.call(stage.querySelectorAll('.panel'));
-  var clockEl = document.getElementById('clock');
   var btnTheme = document.getElementById('btnTheme');
 
   /* ── темы: тёмная, белая, бежевая (кружок посередине экрана) ── */
@@ -152,57 +151,132 @@
     }
   }
 
-  function overflows(fr, fs, H) {
-    fr.verseEl.style.fontSize = fs + 'px';
-    var cs = window.getComputedStyle(fr.panel);
-    var pad = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
-    var avail = fr.panel.clientHeight - pad - fr.srcEl.offsetHeight;
-    if (fr.verseEl.offsetHeight > avail) return true;
-    if (fr.prose) return false;                     // прозу переносить можно
-    var oneLine = (parseFloat(window.getComputedStyle(fr.verseEl).lineHeight) || fs * 1.58);
-    if (oneLine < fs) oneLine = fs * 1.58;
-    var kids = fr.verseEl.children;
-    for (var i = 0; i < kids.length; i++) {
-      if (kids[i].offsetHeight > oneLine * 1.3) return true;   // стихотворная строка перенеслась
+  /* ── подбор кегля: измеряем по-настоящему (прямоугольники строк)
+        и в конце перепроверяем факт — влезает ли текст в четверть ── */
+  function roomFor(fr) {
+    var pr = fr.panel.getBoundingClientRect();
+    var pst = window.getComputedStyle(fr.panel);
+    var top = pr.top + (parseFloat(pst.paddingTop) || 0);
+    var bottom = Math.min(
+      pr.bottom - (parseFloat(pst.paddingBottom) || 0),
+      fr.btnPlay.getBoundingClientRect().top - 18       // текст не должен наезжать на кнопки
+    );
+    var srcH = 0;
+    if (window.getComputedStyle(fr.srcEl).display !== 'none') {
+      srcH = fr.srcEl.getBoundingClientRect().height +
+             (parseFloat(window.getComputedStyle(fr.srcEl).marginTop) || 0);
     }
-    return false;
+    return bottom - top - srcH;
+  }
+
+  function textHeight(fr) {                  // сумма высот настоящих строк
+    var h = 0, kids = fr.verseEl.children;
+    for (var i = 0; i < kids.length; i++) h += kids[i].getBoundingClientRect().height;
+    return h;
+  }
+
+  // сколько лишнего торчит (px); 0 = всё на месте; перенос стихотворной строки = тоже плохо
+  function verseOverflow(fr, fs) {
+    if (fr.panel.classList.contains('scrolly')) return 0;   // здесь мы сознательно дали прокрутку
+    var st = fr.verseEl.style;
+    st.minHeight = '0px';
+    st.flex = '0 0 auto';                     // на время замера блок равен высоте текста
+    st.fontSize = fs + 'px';
+    fillFull(fr, true);
+    var over = textHeight(fr) - roomFor(fr);
+    var res = over > 0.5 ? over : 0;
+    if (!fr.prose) {
+      var lh = parseFloat(window.getComputedStyle(fr.verseEl).lineHeight) || fs * 1.46;
+      if (lh < fs) lh = fs * 1.46;
+      var kids = fr.verseEl.children;
+      for (var i = 0; i < kids.length; i++) {
+        if (kids[i].getBoundingClientRect().height > lh * 1.28) { res = res || 1; break; }
+      }
+    }
+    if (fr.verseEl.scrollWidth > fr.verseEl.clientWidth + 1) res = res || 1;
+    fillFull(fr, false);
+    st.flex = '';
+    return res;
+  }
+
+  function restoreText(fr) {
+    if (fr.running) restorePartial(fr);
+    else if (fr.done) fillFull(fr, true);
+    else fillFull(fr, false);
   }
 
   function fitVerse(fr) {
     var H = window.innerHeight;
-    fr.verseEl.style.minHeight = '0px';
-    var hi = Math.max(20, Math.min(54, 0.019 * H + 0.011 * window.innerWidth)) * (fr.size || 1);
+    var hi = Math.max(16, Math.min(54, 0.019 * H + 0.011 * window.innerWidth)) * (fr.size || 1);
+    var best;
+    if (verseOverflow(fr, hi) === 0) {
+      best = hi;
+    } else {
+      var a = 11, b = hi;
+      for (var k = 0; k < 11; k++) {
+        var mid = (a + b) / 2;
+        if (verseOverflow(fr, mid) !== 0) b = mid; else a = mid;
+      }
+      best = Math.floor(a);
+    }
+    var guard = 0;
+    while (verseOverflow(fr, best) !== 0 && best > 9 && guard++ < 45) best -= 1;
+    // резерв высоты — по ФАКТУ при финальном кегле
+    var st = fr.verseEl.style;
+    st.minHeight = '0px';
+    st.flex = '0 0 auto';
+    st.fontSize = best + 'px';
     fillFull(fr, true);
-    if (!overflows(fr, hi, H)) {
-      fr.verseEl.style.minHeight = fr.verseEl.offsetHeight + 'px';
-      return;
-    }
-    var lo = 13;
-    for (var k = 0; k < 10; k++) {
-      var mid = (lo + hi) / 2;
-      if (overflows(fr, mid, H)) hi = mid; else lo = mid;
-    }
-    fr.verseEl.style.fontSize = Math.floor(lo) + 'px';
-    fr.verseEl.style.minHeight = fr.verseEl.offsetHeight + 'px';
+    st.minHeight = Math.ceil(textHeight(fr)) + 'px';
+    fillFull(fr, false);
+    st.flex = '';
+    return best;
   }
 
-  function fitCard(fr) {
-    var H = fr.panel.clientHeight, lim = H * 0.56;
-    var lo = 12, hi = Math.max(16, Math.min(26, 0.013 * H + 0.006 * window.innerWidth));
-    var savedMax = fr.cardEl.style.maxHeight;
-    fr.cardEl.style.maxHeight = 'none';
-    fr.cardEl.style.visibility = 'hidden';
-    fr.cardEl.style.fontSize = hi + 'px';
-    if (fr.cardEl.offsetHeight > lim) {
-      for (var k = 0; k < 9; k++) {
-        var mid = (lo + hi) / 2;
-        fr.cardEl.style.fontSize = mid + 'px';
-        if (fr.cardEl.offsetHeight > lim) hi = mid; else lo = mid;
-      }
-      fr.cardEl.style.fontSize = Math.floor(lo) + 'px';
+  function fitVerseSmart(fr) {
+    fr.panel.classList.remove('tight', 'coarse', 'scrolly');
+    var fs = fitVerse(fr);                     // сначала с подписью «А. Пушкин…»
+    if (fs < 12) {
+      fr.panel.classList.add('tight');         // не влезает — подпись прячем
+      fs = fitVerse(fr);
     }
-    fr.cardEl.style.visibility = '';
-    fr.cardEl.style.maxHeight = savedMax;
+    if (fs < 11) {
+      fr.panel.classList.add('coarse');        // и совсем тесно — уплотняем межстрочный
+      fs = fitVerse(fr);
+    }
+    if (verseOverflow(fr, fs) !== 0) {         // крайний случай — прокрутка внутри четверти
+      fr.panel.classList.add('scrolly');
+      fr.verseEl.style.minHeight = '0px';
+    }
+    restoreText(fr);
+  }
+
+  /* карточка объяснения: кегль подбираем по факту — текст должен целиком
+     умещаться внутри карточки, с учётом её максимальной высоты и отступа снизу */
+  function fitCard(fr) {
+    var c = fr.cardEl, note = c.querySelector('.card__note');
+    var H = fr.panel.clientHeight;
+    var hi = Math.max(15, Math.min(26, 0.013 * H + 0.006 * window.innerWidth));
+    var lo = 11;
+    if (note) note.style.display = '';
+
+    function over() { return c.scrollHeight > c.clientHeight + 1; }
+    function search(minSize) {
+      c.style.fontSize = hi + 'px';
+      if (!over()) return;
+      var a = minSize, b = hi;
+      for (var k = 0; k < 10; k++) {
+        var mid = (a + b) / 2;
+        c.style.fontSize = mid + 'px';
+        if (over()) b = mid; else a = mid;
+      }
+      c.style.fontSize = Math.max(minSize, Math.floor(a)) + 'px';
+    }
+
+    search(12);
+    // на крошечных четвертях дополнительная строка не помещается — обходимся без неё
+    if (over() && note) { note.style.display = 'none'; search(11); }
+    // строка «ещё про слово» вернётся при следующем пересчёте, когда места хватит
   }
 
   function layout() {
@@ -210,19 +284,58 @@
       var wasRunning = fr.running;
       clearTimeout(fr.timer); fr.timer = null;
       fr.running = false;
-      fitVerse(fr);
-      fillFull(fr, false);
-      if (fr.done) fillFull(fr, true);
-      if (wasRunning) { fr.running = true; restorePartial(fr); }
+      fitVerseSmart(fr);              // подгонка + восстановление текста
       fitCard(fr);
+      if (wasRunning) { fr.running = true; restorePartial(fr); }
+    });
+    settle();
+  }
+
+  /* страховка: через пару кадров (и когда догрузятся шрифты) ещё раз
+     смотрим ФАКТ — если где-то текст торчит за четверть, уменьшаем кегль */
+  function verifyFr(fr) {
+    var fs = parseFloat(fr.verseEl.style.fontSize) || 16;
+    var guard = 0, bad = verseOverflow(fr, fs) !== 0;
+    while (bad && fs > 9 && guard++ < 45) { fs -= 1; bad = verseOverflow(fr, fs) !== 0; }
+    restoreText(fr);
+    if (guard) {
+      var st = fr.verseEl.style;
+      st.minHeight = '0px';
+      st.flex = '0 0 auto';
+      st.fontSize = fs + 'px';
+      fillFull(fr, true);
+      st.minHeight = Math.ceil(textHeight(fr)) + 'px';
+      fillFull(fr, false);
+      st.flex = '';
+      restoreText(fr);
+    }
+  }
+  function settle() {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { frags.forEach(verifyFr); });
     });
   }
+
   var layoutTimer = null;
-  window.addEventListener('resize', function () {
+  function scheduleLayout() {
     clearTimeout(layoutTimer);
-    layoutTimer = setTimeout(layout, 200);
+    layoutTimer = setTimeout(layout, 180);
+  }
+  window.addEventListener('resize', scheduleLayout);
+  window.addEventListener('orientationchange', scheduleLayout);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', scheduleLayout);
+  ['(orientation: portrait)', '(max-height: 560px)', '(max-width: 860px)', '(prefers-reduced-motion: reduce)'].forEach(function (q) {
+    var mq = window.matchMedia ? window.matchMedia(q) : null;
+    if (!mq) return;
+    if (mq.addEventListener) mq.addEventListener('change', scheduleLayout);
+    else if (mq.addListener) mq.addListener(scheduleLayout);
   });
   layout();
+  window.addEventListener('load', settle);
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () { frags.forEach(verifyFr); }).catch(function () {});
+  }
+  setTimeout(settle, 1200);
 
   /* ── машинка: каждая четверть печатает сама по себе ─────────── */
   function renderFr(fr) {
@@ -259,6 +372,7 @@
       return;
     }
 
+    if (it.hl) it.el.classList.add('hl-bloom');   // загаданное слово вспыхивает, когда допечатано
     var isLast = fr.pos === fr.items.length - 1;
     var wait = pauseAfter(it, !!fr.lineEndIdx[fr.pos], isLast);
     if (isLast) { finishFr(fr); return; }
@@ -269,14 +383,23 @@
 
   function startFr(fr) {
     clearTimeout(fr.timer); fr.timer = null;
-    fr.items.forEach(function (it) { it.el.textContent = ''; });
+    fr.items.forEach(function (it) { it.el.textContent = ''; it.el.classList.remove('hl-bloom'); });
     if (fr.cursorEl.parentNode) fr.cursorEl.parentNode.removeChild(fr.cursorEl);
     setCard(fr, false);
     fr.pos = 0; fr.ci = 0; fr.done = false; fr.running = true;
     fr.panel.classList.add('active');
     fr.panel.classList.remove('done');
+    pulse(fr.panel);
     if (paused) return;                       // печатаем, когда снимут паузу
     fr.timer = setTimeout(function () { fragStep(fr); }, 320);
+  }
+
+  // мягкая световая волна в четверти, когда она начинает печатать
+  function pulse(node) {
+    node.classList.remove('flashing');
+    void node.offsetWidth;
+    node.classList.add('flashing');
+    setTimeout(function () { node.classList.remove('flashing'); }, 1700);
   }
 
   function finishFr(fr) {
@@ -292,7 +415,7 @@
   function fastForward(fr) {
     if (!fr || fr.done) return;
     clearTimeout(fr.timer); fr.timer = null;
-    fr.items.forEach(function (it) { it.el.textContent = it.text; });
+    fr.items.forEach(function (it) { it.el.textContent = it.text; if (it.hl) it.el.classList.add('hl-bloom'); });
     finishFr(fr);
   }
 
@@ -313,7 +436,7 @@
     frags.forEach(function (fr) {
       clearTimeout(fr.timer); fr.timer = null;
       if (fr.cursorEl.parentNode) fr.cursorEl.parentNode.removeChild(fr.cursorEl);
-      fr.items.forEach(function (it) { it.el.textContent = ''; });
+      fr.items.forEach(function (it) { it.el.textContent = ''; it.el.classList.remove('hl-bloom'); });
       fr.pos = 0; fr.ci = 0; fr.running = false; fr.done = false;
       fr.panel.classList.remove('active', 'done');
       fr.btnPlay.title = 'Печатать этот отрывок';
@@ -335,22 +458,6 @@
 
   /* ── клавиши ─────────────────────────────────────────────────── */
   function cycleSpeed() { speedIdx = (speedIdx + 1) % SPEEDS.length; }
-
-  var clockOn = false, clockT0 = 0, clockInt = null;
-  function fmt(ms) {
-    var sec = Math.floor(ms / 1000), m = Math.floor(sec / 60);
-    return (m < 10 ? '0' + m : m) + ':' + ((sec % 60) < 10 ? '0' + (sec % 60) : (sec % 60));
-  }
-  function toggleClock() {
-    clockOn = !clockOn;
-    clockEl.hidden = !clockOn;
-    clearInterval(clockInt);
-    if (clockOn) {
-      clockT0 = Date.now();
-      clockEl.textContent = '00:00';
-      clockInt = setInterval(function () { clockEl.textContent = fmt(Date.now() - clockT0); }, 500);
-    }
-  }
 
   function toggleFullscreen() {
     if (document.fullscreenElement) document.exitFullscreen();
@@ -383,7 +490,6 @@
     else if (k === 'v' || k === 'V' || k === 'м' || k === 'М') { cycleSpeed(); }
     else if (k === 't' || k === 'T' || k === 'е' || k === 'Е') { nextTheme(); }
     else if (k === 'e' || k === 'E' || k === 'у' || k === 'У') { toggleRevealAll(); }
-    else if (k === 'c' || k === 'C' || k === 'с' || k === 'С') { toggleClock(); }
     else if (k === 'f' || k === 'F' || k === 'а' || k === 'А') { toggleFullscreen(); }
     else if (k === 'p' || k === 'P' || k === 'з' || k === 'З') { document.body.classList.toggle('nosrc'); }
     else if (k === '1' || k === '2' || k === '3' || k === '4') { startFr(frags[+k - 1]); }

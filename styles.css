@@ -1,7 +1,8 @@
 /* «Слово» — экранный раздаточный материал для урока.
-   Весь экран поделён на 4 части. Печать каждой части запускается своей
-   кнопкой со значком (внизу слева), пояснение к слову — своей кнопкой
-   (внизу справа). Темы: тёмная, белая, бежевая — кружок посередине экрана. */
+   Экран поделён на 4 части; печать каждой запускается своей кнопкой-значком.
+   На заднем плане — тихий мир: дали, лес, поле, что-то светлое в небе. */
+
+/* ── темы ─────────────────────────────────────────────────────── */
 
 :root,
 html[data-theme="dark"] {
@@ -10,10 +11,25 @@ html[data-theme="dark"] {
   --accent: #f0c14e; --accent-soft: rgba(240, 193, 78, .55); --glow: rgba(240, 193, 78, .45);
   --line: rgba(240, 193, 78, .18);
   --card-bg: rgba(7, 10, 14, .92); --fab-bg: rgba(9, 12, 17, .88);
-  --tint: rgba(255, 255, 255, .022);
   --shadow: 0 18px 60px rgba(0, 0, 0, .6);
   --btn-border: rgba(255, 255, 255, .18);
   --on-accent: #0a0d11;
+  --halo: rgba(5, 7, 10, .6);
+  /* мир на заднем плане */
+  --scene-op: .9;
+  --sc-h1: #16202c; --sc-h2: #111a24; --sc-h3: #0d151d;
+  --sc-wood-far: #0c141b; --sc-wood: #090f15;
+  --sc-grass: rgba(240, 193, 78, .085);
+  --cloud: rgba(150, 170, 200, .10);
+  --skyglow: rgba(240, 193, 78, .17);
+  --mote: rgba(240, 193, 78, .6);
+  --mote-op: .55;
+  --vignette: rgba(0, 0, 0, .55);
+  /* светило и птицы в небе */
+  --sun-core: rgba(246, 226, 176, .5); --sun-edge: rgba(240, 193, 78, .12); --sun-halo: rgba(240, 193, 78, .14);
+  --rays: rgba(240, 193, 78, .055);
+  --bird: rgba(214, 220, 230, .15);
+  --cloud: rgba(154, 174, 205, .2);
 }
 
 html[data-theme="light"] {
@@ -22,10 +38,23 @@ html[data-theme="light"] {
   --accent: #9a5a06; --accent-soft: rgba(154, 90, 6, .5); --glow: rgba(154, 90, 6, .22);
   --line: rgba(19, 32, 41, .16);
   --card-bg: rgba(255, 255, 255, .96); --fab-bg: rgba(255, 255, 255, .94);
-  --tint: rgba(0, 0, 0, .014);
   --shadow: 0 18px 50px rgba(20, 40, 60, .16);
   --btn-border: rgba(19, 32, 41, .22);
   --on-accent: #ffffff;
+  --halo: rgba(255, 255, 255, .8);
+  --scene-op: 1;
+  --sc-h1: #eef2f7; --sc-h2: #e6ecf3; --sc-h3: #dde5ee;
+  --sc-wood-far: #dfe6ee; --sc-wood: #d4dee9;
+  --sc-grass: rgba(90, 110, 135, .16);
+  --cloud: rgba(190, 205, 222, .5);
+  --skyglow: rgba(255, 252, 244, .9);
+  --mote: rgba(110, 130, 160, .45);
+  --mote-op: .4;
+  --vignette: rgba(255, 255, 255, 0);
+  --sun-core: rgba(255, 214, 130, .55); --sun-edge: rgba(255, 236, 190, .25); --sun-halo: rgba(255, 222, 150, .35);
+  --rays: rgba(255, 205, 120, .10);
+  --bird: rgba(70, 92, 116, .16);
+  --cloud: rgba(186, 202, 220, .55);
 }
 
 html[data-theme="beige"] {
@@ -34,18 +63,31 @@ html[data-theme="beige"] {
   --accent: #8a5514; --accent-soft: rgba(138, 85, 20, .5); --glow: rgba(138, 85, 20, .28);
   --line: rgba(90, 62, 24, .26);
   --card-bg: rgba(251, 245, 232, .95); --fab-bg: rgba(247, 239, 221, .94);
-  --tint: rgba(120, 90, 40, .03);
   --shadow: 0 18px 50px rgba(90, 60, 20, .22);
   --btn-border: rgba(70, 50, 20, .28);
   --on-accent: #fdf7ea;
+  --halo: rgba(246, 238, 221, .75);
+  --scene-op: .75;
+  --sc-h1: #ece3cd; --sc-h2: #e7dcca; --sc-h3: #e0d4bd;
+  --sc-wood-far: #ddd0b4; --sc-wood: #d6c7a8;
+  --sc-grass: rgba(120, 90, 45, .14);
+  --cloud: rgba(255, 252, 243, .75);
+  --skyglow: rgba(255, 246, 222, .8);
+  --mote: rgba(120, 90, 40, .35);
+  --mote-op: .4;
+  --vignette: rgba(120, 95, 50, .08);
+  --sun-core: rgba(255, 238, 196, .5); --sun-edge: rgba(215, 186, 130, .18); --sun-halo: rgba(226, 200, 150, .32);
+  --rays: rgba(170, 130, 70, .05);
+  --bird: rgba(90, 68, 38, .13);
 }
 
 :root {
   --serif: "Palatino Linotype", Palatino, "Book Antiqua", "Times New Roman", Georgia, serif;
+  --lh: 1.46;
+  --card-max: 58%;
 }
 
 * { box-sizing: border-box; }
-
 html, body { height: 100%; margin: 0; }
 
 body {
@@ -56,29 +98,170 @@ body {
   cursor: default;
 }
 
-/* ── хронометр (включается клавишей C) ────────────────────────── */
+/* ── задний план: небо, облака, дали, лес, поле ───────────────── */
 
-.clock {
-  position: fixed; top: 1.4vh; right: 2.4vw; z-index: 6;
-  font-size: clamp(18px, 2.6vh + .5vw, 40px);
-  color: var(--accent);
-  letter-spacing: .08em;
-  font-variant-numeric: tabular-nums;
-  text-shadow: 0 0 22px var(--glow);
+.scene {
+  position: fixed; inset: 0; z-index: 0;
+  opacity: var(--scene-op);
+  pointer-events: none;
 }
+.scene::after {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(120% 100% at 50% 40%, transparent 45%, var(--vignette) 100%);
+}
+.scene__glow {
+  position: absolute; right: 6%; top: 4%;
+  width: min(52vw, 62vh); height: min(52vw, 62vh);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--skyglow), transparent 72%);
+  animation: skyBreathe 24s ease-in-out infinite;
+}
+@keyframes skyBreathe {
+  0%, 100% { opacity: .75; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.06); }
+}
+.scene__clouds i {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--cloud);
+  filter: blur(34px);
+  animation: cloudDrift var(--c-dur, 180s) linear infinite;
+}
+@keyframes cloudDrift {
+  from { transform: translateX(-30vw); }
+  to   { transform: translateX(130vw); }
+}
+.scene__art { position: absolute; inset: 0; display: block; }
+.scene__motes i {
+  position: absolute;
+  width: var(--sz, 2px); height: var(--sz, 2px);
+  border-radius: 50%;
+  background: var(--mote);
+  animation: moteFloat var(--dur, 40s) linear infinite var(--delay, 0s);
+}
+@keyframes moteFloat {
+  0%   { transform: translate3d(0, 12px, 0); opacity: 0; }
+  12%  { opacity: var(--mote-op); }
+  88%  { opacity: var(--mote-op); }
+  100% { transform: translate3d(var(--dx, 40px), -46vh, 0); opacity: 0; }
+}
+
+.sc-far  { fill: var(--sc-h1); }
+.sc-mid  { fill: var(--sc-h2); }
+.sc-near { fill: var(--sc-h3); }
+.sc-wood-far { fill: var(--sc-wood-far); }
+.sc-wood     { fill: var(--sc-wood); }
+.sc-field    { stroke: var(--sc-grass); stroke-width: .9; stroke-linecap: round; fill: none; }
+.sc-sway {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: sway var(--sway-dur, 11s) ease-in-out infinite alternate;
+}
+.sc-sway0 { --sway-dur: 13s; }
+.sc-sway1 { --sway-dur: 9.5s; }
+.sc-sway2 { --sway-dur: 7.5s; }
+@keyframes sway {
+  from { transform: skewX(-0.7deg) translateX(-2px); }
+  to   { transform: skewX(0.9deg)  translateX(3px); }
+}
+.sc-layer { transition: transform .5s cubic-bezier(.2, .8, .2, 1); }
+
+/* ── птицы в небе: стая летит, крылья взмахивают ──────────────── */
+
+.sc-flock {
+  transform-box: view-box;
+  animation: flyAcross var(--fly, 170s) linear infinite;
+}
+.sc-bob {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: birdBob var(--bob, 7s) ease-in-out infinite alternate;
+}
+.sc-bird { will-change: transform; }
+.sc-wing, .sc-body {
+  fill: none;
+  stroke: var(--bird);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+}
+/* крылья поворачиваются вокруг корпуса: взмах — планирование — взмах */
+.sc-wing-l, .sc-wing-r { transform-box: fill-box; }
+.sc-wing-l { transform-origin: 100% 100%; animation: flapL var(--flap, 1.5s) cubic-bezier(.45,.05,.55,.95) infinite; animation-delay: var(--fdelay, 0s); }
+.sc-wing-r { transform-origin: 0% 100%;   animation: flapR var(--flap, 1.5s) cubic-bezier(.45,.05,.55,.95) infinite; animation-delay: var(--fdelay, 0s); }
+@keyframes flapL {
+  0%   { transform: rotate(-13deg); }
+  30%  { transform: rotate(15deg); }
+  46%  { transform: rotate(6deg); }
+  62%  { transform: rotate(-9deg); }
+  74%  { transform: rotate(-12deg); }   /* планирование */
+  100% { transform: rotate(-13deg); }
+}
+@keyframes flapR {
+  0%   { transform: rotate(13deg); }
+  30%  { transform: rotate(-15deg); }
+  46%  { transform: rotate(-6deg); }
+  62%  { transform: rotate(9deg); }
+  74%  { transform: rotate(12deg); }
+  100% { transform: rotate(13deg); }
+}
+@keyframes flyAcross {
+  from { transform: translateX(-22%) translateY(0); }
+  50%  { transform: translateX(49%) translateY(-2.2%); }
+  to   { transform: translateX(120%) translateY(1.4%); }
+}
+@keyframes birdBob {
+  from { transform: translateY(-6px); }
+  to   { transform: translateY(7px); }
+}
+
+/* ── светило вверху (солнце/луна) с мягким сиянием ────────────── */
+
+.scene__sun {
+  position: absolute; right: 7%; top: 7%;
+  width: min(13vw, 15vh); height: min(13vw, 15vh);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--sun-core) 0%, var(--sun-edge) 58%, transparent 74%);
+  box-shadow: 0 0 90px 26px var(--sun-halo);
+  animation: sunBreathe 20s ease-in-out infinite;
+}
+.scene__sun::before {
+  content: ""; position: absolute; inset: -70%;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg,
+    var(--rays) 0 3deg, transparent 3deg 30deg,
+    var(--rays) 30deg 33deg, transparent 33deg 60deg,
+    var(--rays) 60deg 63deg, transparent 63deg 90deg,
+    var(--rays) 90deg 93deg, transparent 93deg 120deg,
+    var(--rays) 120deg 123deg, transparent 123deg 150deg,
+    var(--rays) 150deg 153deg, transparent 153deg 180deg,
+    var(--rays) 180deg 183deg, transparent 183deg 210deg,
+    var(--rays) 210deg 213deg, transparent 213deg 240deg,
+    var(--rays) 240deg 243deg, transparent 243deg 270deg,
+    var(--rays) 270deg 273deg, transparent 273deg 300deg,
+    var(--rays) 300deg 303deg, transparent 303deg 330deg,
+    var(--rays) 330deg 333deg, transparent 333deg 360deg);
+  -webkit-mask-image: radial-gradient(closest-side, #000 12%, rgba(0,0,0,.6) 45%, transparent 78%);
+          mask-image: radial-gradient(closest-side, #000 12%, rgba(0,0,0,.6) 45%, transparent 78%);
+  animation: sunSpin 240s linear infinite;
+}
+@keyframes sunBreathe {
+  0%, 100% { opacity: .85; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.05); }
+}
+@keyframes sunSpin { to { transform: rotate(360deg); } }
 
 /* ── четыре части экрана ───────────────────────────────────────── */
 
 .stage {
-  position: fixed; inset: 0;
+  position: fixed; inset: 0; z-index: 1;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
 }
 
 .panel {
   position: relative;
-  padding: 3.4vh 3vw 8vh;
+  padding: 2.8vh 3vw 6vh;
   display: flex; flex-direction: column; justify-content: center;
   overflow: hidden;
 }
@@ -86,9 +269,17 @@ body {
 .panel:nth-child(1), .panel:nth-child(2) { border-bottom: 1px solid var(--line); }
 .panel:nth-child(1), .panel:nth-child(3) { border-right: 1px solid var(--line); }
 
-.panel::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(80% 60% at 50% 50%, var(--tint), transparent 70%);
+/* мягкая вспышка, когда четверть начинает печатать */
+.flash {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(70% 55% at 12% 88%, var(--accent-soft), transparent 62%);
+  opacity: 0;
+}
+.panel.flashing .flash { animation: flashOnce 1.5s ease-out; }
+@keyframes flashOnce {
+  0%   { opacity: 0; }
+  18%  { opacity: .35; }
+  100% { opacity: 0; }
 }
 
 .panel__num {
@@ -98,25 +289,38 @@ body {
   letter-spacing: .18em;
   opacity: .3;
   transition: opacity .4s ease;
+  text-shadow: 0 1px 12px var(--halo);
 }
 .panel.active .panel__num, .panel.done .panel__num { opacity: .85; }
 
 .verse {
-  font-size: clamp(15px, calc(1.25vh + .85vw), 34px);
-  line-height: 1.58;
+  position: relative;
+  flex: 0 0 auto;                 // не сжиматься: блок равен высоте текста
+  font-size: clamp(13px, calc(1.25vh + .85vw), 34px);
+  line-height: var(--lh);
   white-space: pre-wrap;
   overflow-wrap: break-word;
   hyphens: auto;
   max-width: 34em;
+  text-shadow: 0 1px 14px var(--halo);
   transition: opacity .5s ease;
 }
 
 .panel.active .verse, .panel.done .verse { opacity: 1; }
 .panel.card-open .verse { opacity: .3; }
 
+/* когда места совсем мало: плотнее строки, в крайнем случае — прокрутка внутри четверти */
+.panel.coarse .verse { line-height: 1.26; }
+.panel.scrolly .verse {
+  flex: 1 1 auto; min-height: 0;
+  overflow-y: auto; overscroll-behavior: contain;
+  padding-right: .4em;
+}
+.panel.scrolly .verse::-webkit-scrollbar { width: 5px; }
+.panel.scrolly .verse::-webkit-scrollbar-thumb { background: var(--accent-soft); border-radius: 3px; }
+
 .w { white-space: pre-wrap; }
 
-/* машинописный курсор (свой у каждой четверти, пока она печатает) */
 .cursor {
   display: inline-block;
   width: .5em; height: 1.05em;
@@ -130,13 +334,27 @@ body {
 
 /* загаданное слово */
 .hl {
+  position: relative;
   font-weight: 700;
   color: var(--accent);
   letter-spacing: .03em;
   text-decoration: underline dotted var(--accent-soft);
   text-underline-offset: .22em;
-  text-shadow: 0 0 18px var(--glow);
+  text-shadow: 0 1px 14px var(--halo), 0 0 18px var(--glow);
   animation: flicker 2.8s ease-in-out infinite;
+}
+.hl::before {
+  content: ""; position: absolute; left: -.28em; right: -.24em; top: -.34em; bottom: -.2em;
+  border-radius: .35em;
+  background: radial-gradient(closest-side, var(--glow), transparent 78%);
+  opacity: 0;
+  pointer-events: none;
+}
+.hl.hl-bloom::before { animation: bloom 1.6s ease-out; }
+@keyframes bloom {
+  0%   { opacity: 0;  transform: scale(.8); }
+  22%  { opacity: .85; }
+  100% { opacity: 0;  transform: scale(1.7); }
 }
 @keyframes flicker {
   0%, 100% { opacity: 1; }
@@ -145,17 +363,20 @@ body {
 }
 
 .src {
+  position: relative;
+  flex: 0 0 auto;
   margin-top: 1.8vh;
-  font-size: clamp(11px, calc(.85vh + .35vw), 17px);
+  font-size: clamp(10px, calc(.85vh + .35vw), 17px);
   color: var(--ink-dim);
   letter-spacing: .04em;
   opacity: 0;
   transition: opacity .8s ease;
+  text-shadow: 0 1px 10px var(--halo);
 }
-.panel.done .src { opacity: .8; }
-body.nosrc .src { display: none; }
+.panel.done .src { opacity: .85; }
+body.nosrc .src, .panel.tight .src { display: none; }
 
-/* ── круглые кнопки самой четверти: слева — печать, справа — пояснение ── */
+/* ── круглые кнопки четверти: печать и пояснение ──────────────── */
 
 .pbtn {
   position: absolute; bottom: 2.4vh; z-index: 3;
@@ -176,13 +397,13 @@ body.nosrc .src { display: none; }
 .pbtn--play { left: 2.4vw; }
 .pbtn--card { right: 2.4vw; }
 .pbtn--on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); opacity: 1; }
-.pbtn:active { transform: scale(.92); }
+.pbtn:active { transform: scale(.9); }
 
 /* ── карточка с объяснением слова ─────────────────────────────── */
 
 .card {
-  position: absolute; left: 3vw; right: 3vw; bottom: 8.4vh;
-  max-height: 58%;
+  position: absolute; left: 3vw; right: 3vw; bottom: 7.6vh;
+  max-height: min(var(--card-max), calc(100% - 9vh));
   padding: 1.6vh 1.4vw 1.8vh;
   background: var(--card-bg);
   border: 1px solid var(--line);
@@ -192,6 +413,8 @@ body.nosrc .src { display: none; }
   opacity: 0; transform: translateY(14px) scale(.98);
   transition: opacity .45s ease, transform .45s ease;
   pointer-events: none;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
 }
 .panel.card-open .card { opacity: 1; transform: none; pointer-events: auto; }
 
@@ -204,10 +427,15 @@ body.nosrc .src { display: none; }
   text-rendering: optimizeLegibility;
 }
 .card__word::before { content: ""; display: block; width: 2.4em; height: 1px; background: var(--accent-soft); margin-bottom: .6em; }
+.panel.card-open .card__word { animation: wordIn .7s cubic-bezier(.2, .9, .2, 1); }
+@keyframes wordIn {
+  from { opacity: 0; transform: translateX(-10px); letter-spacing: .12em; }
+  to   { opacity: 1; transform: none; letter-spacing: normal; }
+}
 .card__gloss { margin: 0; font-size: 1em; line-height: 1.45; }
 .card__note { margin: .6em 0 0; color: var(--ink-dim); font-size: .78em; line-height: 1.4; }
 
-/* ── переключатель темы: кружок посередине экрана ─────────────── */
+/* ── переключатель тем: кружок посередине экрана ──────────────── */
 
 .theme-fab {
   position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
@@ -224,19 +452,63 @@ body.nosrc .src { display: none; }
   box-shadow: var(--shadow);
   cursor: pointer;
   opacity: .45;
-  transition: opacity .25s ease, transform .25s ease;
+  transition: opacity .25s ease, transform .35s cubic-bezier(.2, .9, .2, 1);
 }
-.theme-fab:hover, .theme-fab:focus-visible { opacity: 1; }
-.theme-fab:active { transform: translate(-50%, -50%) scale(.94); }
+.theme-fab:hover, .theme-fab:focus-visible { opacity: 1; transform: translate(-50%, -50%) rotate(18deg) scale(1.08); }
+.theme-fab:active { transform: translate(-50%, -50%) scale(.92); }
 
-/* ── если экран узкий или портретный ──────────────────────────── */
+/* ── узкие и портретные экраны: одна колонка ──────────────────── */
 
-@media (max-width: 760px), (orientation: portrait) {
-  .stage { grid-template-columns: 1fr; grid-template-rows: repeat(4, 1fr); }
+@media (max-width: 860px) and (orientation: portrait) {
+  :root { --card-max: 82%; }
+  .stage {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+  }
+  .panel { padding: 2.2vh 5vw 6vh; }
   .panel:nth-child(1), .panel:nth-child(2), .panel:nth-child(3) { border-right: 0; }
+  .panel:nth-child(1), .panel:nth-child(2) { border-bottom: 1px solid var(--line); }
   .panel:nth-child(3) { border-bottom: 1px solid var(--line); }
   .panel:nth-child(4) { border-bottom: 0; }
-  .verse { max-width: none; }
-  .card { left: 5vw; right: 5vw; }
-  .theme-fab { top: auto; bottom: 2vh; }
+  .verse { max-width: none; line-height: 1.44; }
+  .src { margin-top: 1.1vh; }
+  .card { left: 4vw; right: 4vw; bottom: 6.6vh; }
+  .pbtn { width: 2.35em; height: 2.35em; bottom: 1.6vh; font-size: clamp(14px, 1.2vh + .5vw, 20px); }
+  .pbtn--play { left: 3.4vw; }
+  .pbtn--card { right: 3.4vw; }
+}
+
+/* ── очень низкие окна (альбомный телефон, маленький браузер) ─── */
+
+@media (max-height: 560px) {
+  :root { --lh: 1.34; --card-max: 70%; }
+  .panel { padding: 1.8vh 3vw 5.2vh; }
+  .verse { line-height: 1.34; }
+  .src { margin-top: .8vh; }
+  .card { bottom: 5.6vh; }
+  .pbtn { width: 2.15em; height: 2.15em; bottom: 1.3vh; font-size: clamp(13px, 1.1vh + .4vw, 19px); }
+}
+
+@media (max-height: 640px) and (max-width: 860px) and (orientation: portrait) {
+  :root { --card-max: 86%; }
+  .panel { padding: 1.4vh 4.5vw 8.4vh; }
+  .pbtn { width: 2em; height: 2em; bottom: 1.2vh; font-size: 13px; }
+  .pbtn--play { left: 3.4vw; }
+  .pbtn--card { right: 3.4vw; }
+}
+
+@media (max-height: 560px) and (max-width: 860px) and (orientation: portrait) {
+  .panel { padding: 1.6vh 4.5vw 4.4vh; }
+}
+
+/* ── если движения нежелательны ───────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .scene__glow, .scene__sun, .scene__sun::before, .scene__clouds i, .scene__motes i, .sc-sway,
+  .sc-flock, .sc-bob, .sc-wing-l, .sc-wing-r,
+  .hl, .cursor, .panel.flashing .flash, .hl.hl-bloom::before,
+  .panel.card-open .card__word { animation: none !important; }
+  .sc-layer { transition: none !important; }
+  .verse, .card, .pbtn, .theme-fab { transition: none !important; }
+  .hl { opacity: 1; }
 }
