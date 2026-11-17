@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,12 +9,6 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-<header class="brand" id="brand">
-  <span class="brand__title">СЛОВО</span>
-  <span class="brand__sep">·</span>
-  <span class="brand__sub">«Словарь языка Пушкина» — кто быстрее найдёт непонятное слово</span>
-</header>
 
 <div class="clock" id="clock" hidden>00:00</div>
 
@@ -32,14 +26,15 @@
 
 <footer class="bar" id="bar">
   <button class="bar__btn" id="btnPlay" title="Пауза / продолжить (пробел)">Пауза</button>
-  <button class="bar__btn" id="btnRestart" title="Заново (R)">Заново</button>
+  <button class="bar__btn" id="btnRestart" title="Все четыре заново (R)">Заново</button>
   <button class="bar__btn" id="btnSpeed" title="Скорость печати (V)">Скорость: средняя</button>
   <button class="bar__btn" id="btnSrc" title="Показывать название произведения">Произведения: да</button>
+  <button class="bar__btn" id="btnTheme" title="Тема оформления (T)">Тема: тёмная</button>
   <button class="bar__btn" id="btnClock" title="Хронометраж соревнования (C)">Хронометр: выкл</button>
   <button class="bar__btn" id="btnFull" title="На весь экран (F)">На весь экран</button>
-  <button class="bar__btn bar__btn--main" id="btnReveal" title="Пояснения слов (E)" disabled>Пояснения</button>
+  <button class="bar__btn bar__btn--main" id="btnReveal" title="Пояснения сразу во всех четырёх (E)">Пояснения</button>
   <span class="keys" id="keys">
-    <b>пробел</b> пауза · <b>R</b> заново · <b>V</b> скорость · <b>E</b> пояснения · <b>C</b> хронометр · <b>F</b> весь экран · <b>PageDown</b> доскорить отрывок
+    <b>пробел</b> пауза · <b>R</b> все заново · <b>V</b> скорость · <b>T</b> тема · <b>E</b> пояснения · <b>C</b> хронометр · <b>F</b> весь экран · в углу каждой четверти: <b>▶</b> напечатать заново, <b>?</b> пояснение к слову
   </span>
 </footer>
 
