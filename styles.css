@@ -295,7 +295,7 @@ body {
 
 .verse {
   position: relative;
-  flex: 0 0 auto;                 // не сжиматься: блок равен высоте текста
+  flex: 0 0 auto;                 /* не сжиматься: блок равен высоте текста */
   font-size: clamp(13px, calc(1.25vh + .85vw), 34px);
   line-height: var(--lh);
   white-space: pre-wrap;
@@ -435,6 +435,53 @@ body.nosrc .src, .panel.tight .src { display: none; }
 .card__gloss { margin: 0; font-size: 1em; line-height: 1.45; }
 .card__note { margin: .6em 0 0; color: var(--ink-dim); font-size: .78em; line-height: 1.4; }
 
+/* ── ползунок скорости: сверху посередине, подписаны только цифры ── */
+
+.speed {
+  position: fixed; left: 50%; top: 1.3vh; transform: translateX(-50%);
+  z-index: 9;
+  width: clamp(160px, 19vw, 230px);
+  opacity: .45;
+  transition: opacity .25s ease;
+}
+.speed:hover, .speed:focus-within { opacity: 1; }
+
+.speed input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  display: block; width: 100%; height: 14px; margin: 0;
+  background: transparent; cursor: pointer;
+}
+.speed input[type=range]::-webkit-slider-runnable-track {
+  height: 2px; border-radius: 2px; background: var(--accent-soft);
+}
+.speed input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 13px; height: 13px; margin-top: -5.5px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1px solid var(--bg-1);
+  box-shadow: 0 0 10px var(--glow);
+}
+.speed input[type=range]::-moz-range-track {
+  height: 2px; border-radius: 2px; background: var(--accent-soft);
+}
+.speed input[type=range]::-moz-range-thumb {
+  width: 13px; height: 13px; border: 1px solid var(--bg-1);
+  border-radius: 50%; background: var(--accent);
+}
+.speed input[type=range]:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
+
+.speed__ticks {
+  display: flex; justify-content: space-between;
+  margin-top: 1px;
+  font-size: clamp(9px, .95vh, 12px);
+  color: var(--ink-dim);
+  letter-spacing: .02em;
+  user-select: none; -webkit-user-select: none;
+}
+.speed__ticks span { min-width: 1.7em; text-align: center; }
+.speed__ticks span.on { color: var(--accent); font-weight: 700; }
+
 /* ── переключатель тем: кружок посередине экрана ──────────────── */
 
 .theme-fab {
@@ -476,6 +523,8 @@ body.nosrc .src, .panel.tight .src { display: none; }
   .pbtn { width: 2.35em; height: 2.35em; bottom: 1.6vh; font-size: clamp(14px, 1.2vh + .5vw, 20px); }
   .pbtn--play { left: 3.4vw; }
   .pbtn--card { right: 3.4vw; }
+  .panel__num { left: 7vw; transform: none; }   /* чтобы не сталкиваться с ползунком */
+  .speed { top: 1.1vh; }
 }
 
 /* ── очень низкие окна (альбомный телефон, маленький браузер) ─── */

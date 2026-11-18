@@ -14,6 +14,8 @@
   var stage = document.getElementById('stage');
   var panels = Array.prototype.slice.call(stage.querySelectorAll('.panel'));
   var btnTheme = document.getElementById('btnTheme');
+  var speedRange = document.getElementById('speedRange');
+  var speedTicks = Array.prototype.slice.call(document.querySelectorAll('.speed__ticks span'));
 
   /* ── темы: тёмная, белая, бежевая (кружок посередине экрана) ── */
   var THEMES = [
@@ -35,16 +37,18 @@
     try { localStorage.setItem('slovo-theme', t.id); } catch (e) {}
   }
 
-  /* ── скорость (по умолчанию медленная) и паузы машинки ──────── */
+  /* ── скорость: ползунок сверху, ×1 — как было по умолчанию ───── */
   var SPEEDS = [
-    { name: 'медленно', ms: 96 },
-    { name: 'средне', ms: 56 },
-    { name: 'быстро', ms: 32 }
+    { ms: 96, label: '×1' },      // как сейчас по умолчанию
+    { ms: 76, label: '×1.25' },
+    { ms: 56, label: '×1.5' },    // прежняя «средняя»
+    { ms: 44, label: '×1.75' },
+    { ms: 32, label: '×2' }       // прежняя «быстрая»
   ];
   var speedIdx = 0;
   var P = { comma: 300, end: 470, line: 560, hl: 2.0 };
   function speed() { return SPEEDS[speedIdx].ms; }
-  function speedK() { return speed() / SPEEDS[1].ms; }
+  function speedK() { return speed() / 56; }      // паузы в тех же пропорциях, что и раньше
   var paused = false;
 
   /* ── разбор текста: строки, слова, выделенное слово ─────────── */
@@ -457,7 +461,12 @@
   }
 
   /* ── клавиши ─────────────────────────────────────────────────── */
-  function cycleSpeed() { speedIdx = (speedIdx + 1) % SPEEDS.length; }
+  function setSpeed(i) {
+    speedIdx = ((i % SPEEDS.length) + SPEEDS.length) % SPEEDS.length;
+    if (speedRange) speedRange.value = String(speedIdx);
+    speedTicks.forEach(function (t, ti) { t.classList.toggle('on', ti === speedIdx); });
+  }
+  function cycleSpeed() { setSpeed(speedIdx + 1); }
 
   function toggleFullscreen() {
     if (document.fullscreenElement) document.exitFullscreen();
@@ -468,6 +477,10 @@
 
   /* ── события ────────────────────────────────────────────────── */
   btnTheme.addEventListener('click', nextTheme);
+
+  if (speedRange) {
+    speedRange.addEventListener('input', function () { setSpeed(+speedRange.value); });
+  }
 
   frags.forEach(function (fr) {
     fr.btnPlay.addEventListener('click', function (e) { e.stopPropagation(); startFr(fr); });
@@ -499,5 +512,6 @@
   });
 
   applyTheme();
+  setSpeed(0);
   clearScreen();
 })();
